@@ -42,10 +42,10 @@ def load_scripts(basedir):
         if not os.path.isfile(path):
             continue
 
-        with open(path, "r", encoding="utf8") as file:
-            text = file.read()
-
         try:
+            with open(path, "r", encoding="utf8") as file:
+                text = file.read()
+
             from types import ModuleType
             compiled = compile(text, path, 'exec')
             module = ModuleType(filename)
@@ -92,6 +92,7 @@ class ScriptRunner:
 
         for script in self.scripts:
             script.args_from = len(inputs)
+            script.args_to = len(inputs)
 
             controls = wrap_call(script.ui, script.filename, "ui", is_img2img)
 

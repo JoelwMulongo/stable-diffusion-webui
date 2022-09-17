@@ -3,10 +3,8 @@ A browser interface based on Gradio library for Stable Diffusion.
 
 ![](screenshot.png)
 
-## Feature showcase
-
-[Detailed feature showcase with images, art by Greg Rutkowski](https://github.com/AUTOMATIC1111/stable-diffusion-webui-feature-showcase)
-
+## Features
+[Detailed feature showcase with images](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Features):
 - Original txt2img and img2img modes
 - One click install and run script (but you still must install python and git)
 - Outpainting
@@ -18,20 +16,21 @@ A browser interface based on Gradio library for Stable Diffusion.
 - X/Y plot
 - Textual Inversion
 - Extras tab with:
-  - GFPGAN, neural network that fixes faces
-  - RealESRGAN, neural network upscaler
-  - ESRGAN, neural network with a lot of third party models
+    - GFPGAN, neural network that fixes faces
+    - CodeFormer, face restoration tool as an alternative to GFPGAN
+    - RealESRGAN, neural network upscaler
+    - ESRGAN, neural network with a lot of third party models
 - Resizing aspect ratio options
 - Sampling method selection
 - Interrupt processing at any time
-- 4GB videocard support
+- 4GB video card support
 - Correct seeds for batches
 - Prompt length validation
 - Generation parameters added as text to PNG
 - Tab to view an existing picture's generation parameters
 - Settings page
 - Running custom code from UI
-- Mouseover hints fo most UI elements
+- Mouseover hints for most UI elements
 - Possible to change defaults/mix/max/step values for UI elements via text config
 - Random artist button
 - Tiling support: UI checkbox to create images that can be tiled like textures
@@ -41,247 +40,38 @@ A browser interface based on Gradio library for Stable Diffusion.
 - Variations
 - Seed resizing
 - CLIP interrogator
+- Prompt Editing
 
-## Installing and running
+## Installation and Running
+Make sure the required [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) are met and follow the instructions available for both [NVidia](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-NVidia-GPUs) (recommended) and [AMD](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) GPUs.
 
-You need [python](https://www.python.org/downloads/windows/) and [git](https://git-scm.com/download/win)
-installed to run this, and an NVidia videocard.
+Alternatively, use [Google Colab](https://colab.research.google.com/drive/1Iy-xW9t1-OQWhb0hNxueGij8phCyluOh).
 
-You need `model.ckpt`, Stable Diffusion model checkpoint, a big file containing the neural network weights. You
-can obtain it from the following places:
- - [official download](https://huggingface.co/CompVis/stable-diffusion-v-1-4-original)
- - [file storage](https://drive.yerf.org/wl/?id=EBfTrmcCCUAGaQBXVIj5lJmEhjoP1tgl)
- - magnet:?xt=urn:btih:3a4a612d75ed088ea542acac52f9f45987488d1c&dn=sd-v1-4.ckpt&tr=udp%3a%2f%2ftracker.openbittorrent.com%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337
+### Automatic Installation on Windows
+1. Install [Python 3.10.6](https://www.python.org/downloads/windows/), checking "Add Python to PATH"
+2. Install [git](https://git-scm.com/download/win).
+3. Download the stable-diffusion-webui repository, for example by running `git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git`.
+4. Place `model.ckpt` in the `models` directory.
+5. _*(Optional)*_ Place `GFPGANv1.3.pth` in the base directory, alongside `webui.py`.
+6. Run `webui-user.bat` from Windows Explorer as normal, non-administrate, user.
 
-You optionally can use GFPGAN to improve faces, then you'll need to download the model from [here](https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.3.pth).
-
-To use ESRGAN models, put them into ESRGAN directory in the same location as webui.py. A file will be loaded
-as model if it has .pth extension. Grab models from the [Model Database](https://upscale.wiki/wiki/Model_Database).
-
-> Note: RealESRGAN models are not ESRGAN models, they are not compatible. Do not download RealESRGAN models. Do not place
-RealESRGAN into the directory with ESRGAN models. Thank you.
-
-### Automatic installation/launch
-
-- install [Python 3.10.6](https://www.python.org/downloads/windows/) and check "Add Python to PATH" during installation. You must install this exact version.
-- install [git](https://git-scm.com/download/win)
-- place `model.ckpt` into webui directory, next to `webui.bat`.
-- _*(optional)*_ place `GFPGANv1.3.pth` into webui directory, next to `webui.bat`.
-- run `webui-user.bat` from Windows Explorer. Run it as normal user, ***not*** as administrator.
-
-#### Troubleshooting
-
-- if your version of Python is not in PATH (or if another version is), edit `webui-user.bat`, and modify the
-line `set PYTHON=python` to say the full path to your python executable, for example: `set PYTHON=B:\soft\Python310\python.exe`.
-You can do this for python, but not for git.
-- if you get out of memory errors and your video-card has a low amount of VRAM (4GB), use custom parameter `set COMMANDLINE_ARGS` (see section below)
-to enable appropriate optimization according to low VRAM guide below (for example, `set COMMANDLINE_ARGS=--medvram --opt-split-attention`).
-- to prevent the creation of virtual environment and use your system python, use custom parameter replacing `set VENV_DIR=-` (see below).
-- webui.bat installs requirements from files `requirements_versions.txt`, which lists versions for modules specifically compatible with
-Python 3.10.6. If you choose to install for a different version of python,  using custom parameter `set REQS_FILE=requirements.txt`
-may help (but I still recommend you to just use the recommended version of python).
-- if you feel you broke something and want to reinstall from scratch, delete directories: `venv`, `repositories`.
-- if you get a green or black screen instead of generated pictures, you have a card that doesn't support half precision
-floating point numbers (Known issue with 16xx cards). You must use `--precision full --no-half` in addition to command line
-arguments (set them using `set COMMANDLINE_ARGS`, see below), and the model will take much more space in VRAM (you will likely
-have to also use at least `--medvram`).
-- installer creates python virtual environment, so none of installed modules will affect your system installation of python if
-you had one prior to installing this.
-- About _"You must install this exact version"_ from the instructions above: you can use any version of python you like,
-and it will likely work, but if you want to seek help about things not working, I will not offer help unless you this
-exact version for my sanity.
-
-#### How to run with custom parameters
-
-It's possible to edit `set COMMANDLINE_ARGS=` line in `webui.bat` to run the program with different command line arguments, but that may lead
-to inconveniences when the file is updated in the repository.
-
-The recommndended way is to use another .bat file named anything you like, set the parameters you want in it, and run webui.bat from it.
-A `webui-user.bat` file included into the repository does exactly this.
-
-Here is an example that runs the prgoram with `--opt-split-attention` argument:
-
-```commandline
-@echo off
-
-set COMMANDLINE_ARGS=--opt-split-attention
-
-call webui.bat
-```
-
-Another example, this file will run the program with custom python path, a different model named `a.ckpt` and without virtual environment:
-
-```commandline
-@echo off
-
-set PYTHON=b:/soft/Python310/Python.exe
-set VENV_DIR=-
-set COMMANDLINE_ARGS=--ckpt a.ckpt
-
-call webui.bat
-```
-
-### What options to use for low VRAM video-cards?
-You can, through command line arguments, enable the various optimizations which sacrifice some/a lot of speed in favor of
-using less VRAM. Those arguments are added to the `COMMANDLINE_ARGS` parameter, see section above.
-
-Here's a list of optimization arguments:
-- If you have 4GB VRAM and want to make 512x512 (or maybe up to 640x640) images, use `--medvram`.
-- If you have 4GB VRAM and want to make 512x512 images, but you get an out of memory error with `--medvram`, use `--medvram --opt-split-attention` instead.
-- If you have 4GB VRAM and want to make 512x512 images, and you still get an out of memory error, use `--lowvram --always-batch-cond-uncond --opt-split-attention` instead.
-- If you have 4GB VRAM and want to make images larger than you can with `--medvram`, use  `--lowvram --opt-split-attention`.
-- If you have more VRAM and want to make larger images than you can usually make (for example 1024x1024 instead of 512x512), use `--medvram --opt-split-attention`. You can use `--lowvram`
-also but the effect will likely be barely noticeable.
-- Otherwise, do not use any of those.
-
-### Running online
-
-Use `--share` option to run online. You will get a xxx.app.gradio link. This is the intended way to use the
-program in collabs.
-
-Use `--listen` to make the server listen to network connections. This will allow computers on local newtork
-to access the UI, and if you configure port forwarding, also computers on the internet.
-
-Use `--port xxxx` to make the server listen on a specific port, xxxx being the wanted port. Remember that
-all ports below 1024 needs root/admin rights, for this reason it is advised to use a port above 1024.
-Defaults to port 7860 if available.
-
-### Google collab
-
-If you don't want or can't run locally, here is google collab that allows you to run the webui:
-
-https://colab.research.google.com/drive/1Iy-xW9t1-OQWhb0hNxueGij8phCyluOh
-
-### Textual Inversion
-To make use of pretrained embeddings, create `embeddings` directory (in the same palce as `webui.py`)
-and put your embeddings into it. They must be .pt files, each with only one trained embedding,
-and the filename (without .pt) will be the term you'd use in prompt to get that embedding.
-
-As an example, I trained one for about 5000 steps: https://files.catbox.moe/e2ui6r.pt; it does not produce
-very good results, but it does work. Download and rename it to Usada Pekora.pt, and put it into embeddings dir
-and use Usada Pekora in prompt.
-
-### How to change UI defaults?
-
-After running once, a `ui-config.json` file appears in webui directory:
-
-```json
-{
-    "txt2img/Sampling Steps/value": 20,
-    "txt2img/Sampling Steps/minimum": 1,
-    "txt2img/Sampling Steps/maximum": 150,
-    "txt2img/Sampling Steps/step": 1,
-    "txt2img/Batch count/value": 1,
-    "txt2img/Batch count/minimum": 1,
-    "txt2img/Batch count/maximum": 32,
-    "txt2img/Batch count/step": 1,
-    "txt2img/Batch size/value": 1,
-    "txt2img/Batch size/minimum": 1,
-```
-
-Edit values to your liking and the next time you launch the program they will be applied.
-
-### Manual installation
-Alternatively, if you don't want to run webui.bat, here are instructions for installing
-everything by hand. This can run on both Windows and Linux (if you're on linux, use `ls`
-instead of `dir`). 
-
+### Automatic Installation on Linux
+1. Install the dependencies:
 ```bash
-# install torch with CUDA support. See https://pytorch.org/get-started/locally/ for more instructions if this fails.
-pip install torch --extra-index-url https://download.pytorch.org/whl/cu113
-
-# check if torch supports GPU; this must output "True". You need CUDA 11. installed for this. You might be able to use
-# a different version, but this is what I tested.
-python -c "import torch; print(torch.cuda.is_available())"
-
-# clone web ui and go into its directory
-git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
-cd stable-diffusion-webui
-
-# clone repositories for Stable Diffusion and (optionally) CodeFormer
-mkdir repositories
-git clone https://github.com/CompVis/stable-diffusion.git repositories/stable-diffusion
-git clone https://github.com/CompVis/taming-transformers.git repositories/taming-transformers
-git clone https://github.com/sczhou/CodeFormer.git repositories/CodeFormer
-git clone https://github.com/salesforce/BLIP.git repositories/BLIP
-
-# install requirements of Stable Diffusion
-pip install transformers==4.19.2 diffusers invisible-watermark --prefer-binary
-
-# install k-diffusion
-pip install git+https://github.com/crowsonkb/k-diffusion.git --prefer-binary
-
-# (optional) install GFPGAN (face resoration)
-pip install git+https://github.com/TencentARC/GFPGAN.git --prefer-binary
-
-# (optional) install requirements for CodeFormer (face resoration)
-pip install -r repositories/CodeFormer/requirements.txt --prefer-binary
-
-# install requirements of web ui
-pip install -r requirements.txt  --prefer-binary
-
-# update numpy to latest version
-pip install -U numpy  --prefer-binary
-
-# (outside of command line) put stable diffusion model into web ui directory
-# the command below must output something like: 1 File(s) 4,265,380,512 bytes
-dir model.ckpt
-
-# (outside of command line) put the GFPGAN model into web ui directory
-# the command below must output something like: 1 File(s) 348,632,874 bytes
-dir GFPGANv1.3.pth
+# Debian-based:
+sudo apt install wget git python3 python3-venv
+# Red Hat-based:
+sudo dnf install wget git python3
+# Arch-based:
+sudo pacman -S wget git python3
 ```
-
-> Note: the directory structure for manual instruction has been changed on 2022-09-09 to match automatic installation: previosuly
-> webui was in a subdirectory of stable diffusion, now it's the reverse. If you followed manual installation before the
-> chage, you can still use the program with you existing directory sctructure.
-
-After that the installation is finished.
-
-Run the command to start web ui:
-
-```
-python webui.py
-```
-
-If you have a 4GB video card, run the command with either `--lowvram` or `--medvram` argument:
-
-```
-python webui.py --medvram
-```
-
-After a while, you will get a message like this:
-
-```
-Running on local URL:  http://127.0.0.1:7860/
-```
-
-Open the URL in browser, and you are good to go.
-
-
-### Windows 11 WSL2 instructions
-Alternatively, here are instructions for installing under Windows 11 WSL2 Linux distro, everything by hand:
-
+2. To install in `/home/$(whoami)/stable-diffusion-webui/`, run:
 ```bash
-# install conda (if not already done)
-wget https://repo.anaconda.com/archive/Anaconda3-2022.05-Linux-x86_64.sh
-chmod +x Anaconda3-2022.05-Linux-x86_64.sh 
-./Anaconda3-2022.05-Linux-x86_64.sh
-
-# Clone webui repo
-git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
-cd stable-diffusion-webui
-
-# Create and activate conda env
-conda env create -f environment-wsl2.yaml
-conda activate automatic
-
-# (optional) install requirements for GFPGAN (upscaling)
-wget https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.3.pth
+bash <(wget -qO- https://raw.githubusercontent.com/AUTOMATIC1111/stable-diffusion-webui/master/webui.sh)
 ```
 
-After that follow the instructions in the `Manual instructions` section starting at step `:: clone repositories for Stable Diffusion and (optionally) CodeFormer`.
-
+## Documentation
+The documentation was moved from this README over to the project's [wiki](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki).
 
 ## Credits
 - Stable Diffusion - https://github.com/CompVis/stable-diffusion, https://github.com/CompVis/taming-transformers
@@ -289,8 +79,9 @@ After that follow the instructions in the `Manual instructions` section starting
 - GFPGAN - https://github.com/TencentARC/GFPGAN.git
 - ESRGAN - https://github.com/xinntao/ESRGAN
 - Ideas for optimizations - https://github.com/basujindal/stable-diffusion
-- Cross Attention layer optimization - https://github.com/Doggettx/stable-diffusion
+- Doggettx - Cross Attention layer optimization - https://github.com/Doggettx/stable-diffusion, original idea for prompt editing.
 - Idea for SD upscale - https://github.com/jquesnelle/txt2imghd
+- Noise generation for outpainting mk2 - https://github.com/parlance-zz/g-diffuser-bot
 - CLIP interrogator idea and borrowing some code - https://github.com/pharmapsychotic/clip-interrogator
 - Initial Gradio script - posted on 4chan by an Anonymous user. Thank you Anonymous user.
 - (You)
