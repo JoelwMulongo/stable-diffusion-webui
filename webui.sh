@@ -41,11 +41,13 @@ then
     venv_dir="venv"
 fi
 
-# install command for torch
-if [[ -z "${TORCH_COMMAND}" ]]
+if [[ -z "${LAUNCH_SCRIPT}" ]]
 then
-    export TORCH_COMMAND=(python3 -m pip install torch==1.12.1+cu113 --extra-index-url https://download.pytorch.org/whl/cu113)
+    LAUNCH_SCRIPT="launch.py"
 fi
+
+# Disable sentry logging
+export ERROR_REPORTING=FALSE
 
 # Do not reinstall existing pip packages on Debian/Ubuntu
 export PIP_IGNORE_INSTALLED=0
@@ -80,8 +82,8 @@ then
     clone_dir="${PWD##*/}"
 fi
 
-# Check prequisites
-for preq in git python3
+# Check prerequisites
+for preq in "${GIT}" "${python_cmd}"
 do
     if ! hash "${preq}" &>/dev/null
     then
@@ -100,15 +102,14 @@ then
     exit 1
 fi
 
-printf "\n%s\n" "${delimiter}"
-printf "Clone or update stable-diffusion-webui"
-printf "\n%s\n" "${delimiter}"
 cd "${install_dir}"/ || { printf "\e[1m\e[31mERROR: Can't cd to %s/, aborting...\e[0m" "${install_dir}"; exit 1; }
 if [[ -d "${clone_dir}" ]]
 then
     cd "${clone_dir}"/ || { printf "\e[1m\e[31mERROR: Can't cd to %s/%s/, aborting...\e[0m" "${install_dir}" "${clone_dir}"; exit 1; }
-    "${GIT}" pull
 else
+    printf "\n%s\n" "${delimiter}"
+    printf "Clone stable-diffusion-webui"
+    printf "\n%s\n" "${delimiter}"
     "${GIT}" clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git "${clone_dir}"
     cd "${clone_dir}"/ || { printf "\e[1m\e[31mERROR: Can't cd to %s/%s/, aborting...\e[0m" "${install_dir}" "${clone_dir}"; exit 1; }
 fi
@@ -136,4 +137,4 @@ fi
 printf "\n%s\n" "${delimiter}"
 printf "Launching launch.py..."
 printf "\n%s\n" "${delimiter}"
-"${python_cmd}" launch.py
+"${python_cmd}" "${LAUNCH_SCRIPT}" "$@"

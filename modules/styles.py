@@ -45,13 +45,19 @@ class StyleDatabase:
         if not os.path.exists(path):
             return
 
-        with open(path, "r", encoding="utf8", newline='') as file:
+        with open(path, "r", encoding="utf-8-sig", newline='') as file:
             reader = csv.DictReader(file)
             for row in reader:
                 # Support loading old CSV format with "name, text"-columns
                 prompt = row["prompt"] if "prompt" in row else row["text"]
                 negative_prompt = row.get("negative_prompt", "")
                 self.styles[row["name"]] = PromptStyle(row["name"], prompt, negative_prompt)
+
+    def get_style_prompts(self, styles):
+        return [self.styles.get(x, self.no_style).prompt for x in styles]
+
+    def get_negative_style_prompts(self, styles):
+        return [self.styles.get(x, self.no_style).negative_prompt for x in styles]
 
     def apply_styles_to_prompt(self, prompt, styles):
         return apply_styles_to_prompt(prompt, [self.styles.get(x, self.no_style).prompt for x in styles])
@@ -73,7 +79,7 @@ class StyleDatabase:
     def save_styles(self, path: str) -> None:
         # Write to temporary file first, so we don't nuke the file if something goes wrong
         fd, temp_path = tempfile.mkstemp(".csv")
-        with os.fdopen(fd, "w", encoding="utf8", newline='') as file:
+        with os.fdopen(fd, "w", encoding="utf-8-sig", newline='') as file:
             # _fields is actually part of the public API: typing.NamedTuple is a replacement for collections.NamedTuple,
             # and collections.NamedTuple has explicit documentation for accessing _fields. Same goes for _asdict()
             writer = csv.DictWriter(file, fieldnames=PromptStyle._fields)
